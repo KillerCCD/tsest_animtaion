@@ -30,56 +30,109 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: Scaffold(
-        body: CustomScrollView(
-          slivers: [
-            const SliverAppBar(
-              expandedHeight: 73,
-              backgroundColor: Colors.white,
-              pinned: false,
-              floating: true,
-              elevation: 0,
-              automaticallyImplyLeading: false,
-              systemOverlayStyle: SystemUiOverlayStyle(
-                  statusBarColor: Color.fromRGBO(25, 4, 18, 1)),
-              flexibleSpace: Text('Italian daser'),
-            ),
-            SliverPadding(
-              padding: const EdgeInsets.all(15.0),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (BuildContext context, int index) {
-                    final IalianLesson italianLesson = italianLessons[index];
-                    return index % 2 != 0
-                        ? Transform(
-                            alignment: Alignment.center,
-                            transform: Matrix4.rotationY(math.pi),
-                            child: Padding(
-                              padding: const EdgeInsets.all(15.0),
-                              child: ITLesson(
-                                isOdd: true,
-                                italianLesson: italianLesson,
-                              ),
-                            ))
-                        : Padding(
-                            padding: const EdgeInsets.all(15.0),
-                            child: ITLesson(
-                              isOdd: false,
-                              italianLesson: italianLesson,
-                            ),
-                          );
-                  },
-                  childCount: 1,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+      home: const CreateItem(),
     );
   }
 }
 
+class CreateItem extends StatefulWidget {
+  const CreateItem({Key? key}) : super(key: key);
+
+  @override
+  State<CreateItem> createState() => _CreateItemState();
+}
+
+class _CreateItemState extends State<CreateItem> {
+  final GlobalKey<SliverAnimatedListState> _listKey = GlobalKey();
+  List<IalianLesson> lessons = [];
+  final itali = italianLessons;
+  @override
+  void initState() {
+    super.initState();
+    _loadItems();
+  }
+
+  Future<void> _loadItems() async {
+    for (var item in itali) {
+      // 1) Wait for one second
+      await Future.delayed(const Duration(milliseconds: 500));
+      // 2) Adding data to actual variable that holds the item.
+      lessons.add(item);
+      // 3) Telling animated list to start animation
+      _listKey.currentState?.insertItem(lessons.length - 1);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: CustomScrollView(
+        slivers: [
+          const SliverAppBar(
+            expandedHeight: 73,
+            backgroundColor: Colors.white,
+            pinned: false,
+            floating: true,
+            elevation: 0,
+            automaticallyImplyLeading: false,
+            systemOverlayStyle: SystemUiOverlayStyle(
+                statusBarColor: Color.fromRGBO(25, 4, 18, 1)),
+            flexibleSpace: Text('Italian daser'),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.all(15.0),
+            sliver: SliverAnimatedList(
+              key: _listKey,
+              itemBuilder: (BuildContext context, int index, animation) {
+                final IalianLesson italianLesson = lessons[index];
+
+                if (index % 2 != 0) {
+                  return SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0, 0),
+                      end: const Offset(0, 0),
+                    ).animate(CurvedAnimation(
+                        parent: animation,
+                        curve: Curves.bounceIn,
+                        reverseCurve: Curves.bounceOut)),
+                    child: Transform(
+                        alignment: Alignment.center,
+                        transform: Matrix4.rotationY(math.pi),
+                        child: Padding(
+                          padding: const EdgeInsets.all(15.0),
+                          child: ITLesson(
+                            isOdd: true,
+                            italianLesson: italianLesson,
+                          ),
+                        )),
+                  );
+                } else {
+                  return SlideTransition(
+                    position: Tween<Offset>(
+                      begin: const Offset(0, 0),
+                      end: const Offset(0, 0),
+                    ).animate(CurvedAnimation(
+                        parent: animation,
+                        curve: Curves.bounceIn,
+                        reverseCurve: Curves.bounceOut)),
+                    child: Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: ITLesson(
+                        isOdd: false,
+                        italianLesson: italianLesson,
+                      ),
+                    ),
+                  );
+                }
+              },
+              initialItemCount: lessons.length,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 // class MyHomePage extends StatelessWidget {
 //   @override
 //   Widget build(BuildContext context) {
