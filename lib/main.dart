@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_figma_test/dictionary.dart';
 import 'package:flutter_figma_test/italian_model.dart';
+import 'package:flutter_figma_test/read_screen.dart';
 import 'dart:math' as math;
 
+import 'contact.dart';
+import 'diconary_armenian_italian.dart';
 import 'fake_italian_lesson.dart';
 import 'italian_lesson_test.dart';
 
@@ -30,7 +34,7 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const CreateItem(),
+      home: const Contact(),
     );
   }
 }
@@ -54,11 +58,10 @@ class _CreateItemState extends State<CreateItem> {
 
   Future<void> _loadItems() async {
     for (var item in itali) {
-      // 1) Wait for one second
       await Future.delayed(const Duration(milliseconds: 500));
-      // 2) Adding data to actual variable that holds the item.
+
       lessons.add(item);
-      // 3) Telling animated list to start animation
+
       _listKey.currentState?.insertItem(lessons.length - 1);
     }
   }
